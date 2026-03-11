@@ -315,23 +315,26 @@
             // UIの状態切り替え
             drawBtn.classList.add('hidden');
             headerArea.classList.add('hidden');
-            resultArea.classList.add('hidden');
+            
+            // ★重要修正1: Xのウィジェットは「非表示(display:none)」の要素内では
+            // 正常に描画されない仕様があるため、先に親コンテナを表示させます。
+            resultArea.classList.remove('hidden');
             loading.classList.remove('hidden');
+
+            // ツイートコンテナを一時的に透明化（レンダリングは実行させる）
+            tweetContainer.style.opacity = '0';
             tweetContainer.innerHTML = ''; // 前回の結果をクリア
 
-            // ランダムにURLを選択し、IDを抽出
+            // ランダムにURLを選択
             const randomUrl = postUrls[Math.floor(Math.random() * postUrls.length)];
-            const tweetId = extractTweetId(randomUrl);
+            
+            // ★重要修正2: widgets.js は「x.com」だと変換を無視することがあるため
+            // 内部的に「twitter.com」に置換してからブロッククオートに渡します
+            const twitterUrl = randomUrl.replace('https://x.com/', 'https://twitter.com/');
 
             // 引用ポスト用のURLを生成してボタンにセット
             const shareText = "過去のメディアガチャを引いたよ！💊\n";
             quoteBtn.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(randomUrl)}&text=${encodeURIComponent(shareText)}`;
-
-            if (!tweetId) {
-                alert("URLの形式が正しくないようです。");
-                resetUI();
-                return;
-            }
 
             // フォールバック用のHTML（ウィジェットがブロックされた時用）
             const fallbackHtml = `
@@ -344,30 +347,29 @@
                 </div>
             `;
 
-            // ご提示いただいた blockquote 形式でHTMLを生成
-            // Xのスクリプトは、aタグのリンクを自動的に読み取ってポストの埋め込みに変換します
-            tweetContainer.innerHTML = `<blockquote class="twitter-tweet" data-theme="light" data-align="center" data-conversation="none"><a href="${randomUrl}"></a></blockquote>`;
+            // ご提示いただいた blockquote 形式でHTMLを生成 (twitterUrl を使用)
+            tweetContainer.innerHTML = `<blockquote class="twitter-tweet" data-theme="light" data-align="center" data-conversation="none"><a href="${twitterUrl}"></a></blockquote>`;
 
-            // タイムアウト処理（5秒待機に変更）
+            // タイムアウト処理（6秒待機）
             let isLoaded = false;
             const timeoutId = setTimeout(() => {
                 if (!isLoaded) {
                     loading.classList.add('hidden');
-                    resultArea.classList.remove('hidden');
+                    tweetContainer.style.opacity = '1';
                     tweetContainer.innerHTML = fallbackHtml;
                 }
-            }, 5000);
+            }, 6000);
 
             // Xウィジェットの再ロードを要求してブロッククオートをツイート表示に変換する
             if (window.twttr && window.twttr.ready) {
                 window.twttr.ready(function (twttr) {
-                    twttr.widgets.load(tweetContainer).then(function (els) {
+                    twttr.widgets.load(tweetContainer).then(function () {
                         isLoaded = true;
                         clearTimeout(timeoutId);
 
                         // 埋め込み完了後の処理
                         loading.classList.add('hidden');
-                        resultArea.classList.remove('hidden');
+                        tweetContainer.style.opacity = '1';
                         
                         // ツイートが削除されている等の理由で変換されなかった場合か、結果が空の場合
                         // 確実に判定するため、iframe（Xの埋め込み実体）が生成されたかを確認する
@@ -385,7 +387,7 @@
                         isLoaded = true;
                         clearTimeout(timeoutId);
                         loading.classList.add('hidden');
-                        resultArea.classList.remove('hidden');
+                        tweetContainer.style.opacity = '1';
                         tweetContainer.innerHTML = fallbackHtml;
                         console.error("X widget load error:", err);
                     });
@@ -394,7 +396,7 @@
                 isLoaded = true;
                 clearTimeout(timeoutId);
                 loading.classList.add('hidden');
-                resultArea.classList.remove('hidden');
+                tweetContainer.style.opacity = '1';
                 tweetContainer.innerHTML = fallbackHtml;
             }
         }
