@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>過去メディアガチャ</title>
+    <title>もさくじ</title>
 
     <!-- =========================================================
          🌟 X埋め込み用「Player Card」設定 🌟
     ========================================================== -->
     <meta name="twitter:card" content="player">
-    <meta name="twitter:site" content="@your_twitter_id"> <!-- あなたのXのユーザーID -->
-    <meta name="twitter:title" content="マイ・メディアガチャ！">
+    <meta name="twitter:site" content="@mosaku3">
+    <meta name="twitter:title" content="もさくじ">
     <meta name="twitter:description" content="過去に投稿した画像や動画付きのポストがランダムで登場するガチャです。">
     <meta name="twitter:image" content="https://mosaku3.github.io/x-gacha/images/mosaku3.jpg">
     <meta name="twitter:player" content="https://mosaku3.github.io/x-gacha/index.html">
@@ -344,7 +344,11 @@
                 </div>
             `;
 
-            // タイムアウト処理（3秒待機に短縮）
+            // ご提示いただいた blockquote 形式でHTMLを生成
+            // Xのスクリプトは、aタグのリンクを自動的に読み取ってポストの埋め込みに変換します
+            tweetContainer.innerHTML = `<blockquote class="twitter-tweet" data-theme="light" data-align="center" data-conversation="none"><a href="${randomUrl}"></a></blockquote>`;
+
+            // タイムアウト処理（5秒待機に変更）
             let isLoaded = false;
             const timeoutId = setTimeout(() => {
                 if (!isLoaded) {
@@ -352,21 +356,12 @@
                     resultArea.classList.remove('hidden');
                     tweetContainer.innerHTML = fallbackHtml;
                 }
-            }, 3000);
+            }, 5000);
 
-            // Xウィジェットのロード完了を待ってからツイートを埋め込む
+            // Xウィジェットの再ロードを要求してブロッククオートをツイート表示に変換する
             if (window.twttr && window.twttr.ready) {
                 window.twttr.ready(function (twttr) {
-                    twttr.widgets.createTweet(
-                        tweetId,
-                        tweetContainer,
-                        {
-                            theme: 'light',
-                            align: 'center',
-                            conversation: 'none', // リプライツリーを非表示
-                            cards: 'visible'      // メディア（画像/動画）を表示
-                        }
-                    ).then(function (el) {
+                    twttr.widgets.load(tweetContainer).then(function (els) {
                         isLoaded = true;
                         clearTimeout(timeoutId);
 
@@ -374,8 +369,10 @@
                         loading.classList.add('hidden');
                         resultArea.classList.remove('hidden');
                         
-                        // ツイートが削除されている等の理由で表示できなかった場合
-                        if (!el) {
+                        // ツイートが削除されている等の理由で変換されなかった場合か、結果が空の場合
+                        // 確実に判定するため、iframe（Xの埋め込み実体）が生成されたかを確認する
+                        const isRendered = tweetContainer.querySelector('iframe');
+                        if (!isRendered) {
                             tweetContainer.innerHTML = fallbackHtml;
                         } else {
                             // アニメーションを付与
