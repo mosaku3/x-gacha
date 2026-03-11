@@ -6,17 +6,14 @@
     <title>もさくじ</title>
 
     <!-- =========================================================
-         🌟 X埋め込み用「Player Card」設定 🌟
+         🌟 X埋め込み用設定 🌟
     ========================================================== -->
-    <meta name="twitter:card" content="player">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@mosaku3">
     <meta name="twitter:title" content="もさくじ">
-    <meta name="twitter:description" content="過去に投稿した画像や動画付きのポストがランダムで登場するガチャです。">
+    <meta name="twitter:description" content="今日の運勢ともさくさんのおすすめの過去ポストがランダムで登場するおみくじです。">
     <meta name="twitter:image" content="https://mosaku3.github.io/x-gacha/images/mosaku3.jpg">
-    <meta name="twitter:player" content="https://mosaku3.github.io/x-gacha/index.html">
-    <!-- ★ここから変更: サイズを大きく設定（Xの許容する最大幅に合わせて表示されます） -->
-    <meta name="twitter:player:width" content="600">
-    <meta name="twitter:player:height" content="800">
+    <meta name="twitter:url" content="https://mosaku3.github.io/x-gacha/index.html">
     <!-- ========================================================= -->
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -66,44 +63,59 @@
     <div class="bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border border-white/20 text-center max-w-[95%] w-[360px] max-h-[95vh] flex flex-col">
         
         <div id="header-area">
-            <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-1">
-                思い出メディアガチャ
+            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-yellow-500 mb-1">
+                ⛩️ もさくじ
             </h1>
-            <p class="text-xs text-gray-500 mb-5 border-b pb-3">過去のメディア付きポストがランダムで出ます</p>
+            <p class="text-xs text-gray-500 mb-5 border-b pb-3">運勢とおすすめポストを占います</p>
         </div>
 
         <!-- ガチャを引くボタン -->
         <button id="draw-btn" class="relative group mx-auto mb-2 focus:outline-none">
-            <div class="absolute inset-0 bg-pink-400 rounded-full blur opacity-50 group-hover:opacity-100 transition duration-300"></div>
-            <div class="relative bg-gradient-to-b from-pink-400 to-pink-600 text-white font-bold text-xl py-4 px-10 rounded-full shadow-lg transform transition-transform group-hover:scale-105 active:scale-95 flex items-center gap-2">
-                <span>ガチャを回す</span>
-                <span class="text-2xl">🕹️</span>
+            <div class="absolute inset-0 bg-red-400 rounded-full blur opacity-50 group-hover:opacity-100 transition duration-300"></div>
+            <div class="relative bg-gradient-to-b from-red-400 to-red-600 text-white font-bold text-xl py-4 px-10 rounded-full shadow-lg transform transition-transform group-hover:scale-105 active:scale-95 flex items-center gap-2">
+                <span>おみくじを引く</span>
+                <span class="text-2xl">🥠</span>
             </div>
         </button>
 
         <!-- ローディング表示 -->
-        <div id="loading" class="hidden my-8 text-pink-500 animate-pulse font-bold text-lg">
-            カプセルを開封中... 💊
+        <div id="loading" class="hidden my-8 text-red-500 animate-pulse font-bold text-lg">
+            神様にお伺いを立てています... ⛩️
         </div>
 
         <!-- 結果表示エリア -->
         <div id="result-area" class="hidden flex-col items-center flex-grow overflow-hidden mt-4">
-            <div class="text-sm font-bold text-gray-400 mb-2">▼ ガチャ結果 ▼</div>
+            
+            <!-- 運勢結果 -->
+            <div class="text-sm font-bold text-gray-500 mb-1">あなたの運勢は...</div>
+            <div id="fortune-result" class="text-4xl font-black mb-2 drop-shadow-sm"></div>
+            <div id="fortune-desc" class="text-sm font-medium text-gray-700 mb-5 px-2 leading-relaxed"></div>
+
+            <!-- ボタンエリア（上部配置） -->
+            <div class="flex flex-col gap-2 mb-5 w-full px-2">
+                <div class="flex flex-row gap-2 w-full">
+                    <!-- おすすめ引用用ボタン -->
+                    <a id="quote-recommend-btn" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 py-2.5 bg-black hover:bg-gray-800 text-white rounded-full font-bold text-xs shadow transition-colors flex justify-center items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 5.968H5.078z"></path></svg>
+                        おすすめ引用
+                    </a>
+                    <!-- もさくじ引用用ボタン -->
+                    <a id="quote-app-btn" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 py-2.5 bg-black hover:bg-gray-800 text-white rounded-full font-bold text-xs shadow transition-colors flex justify-center items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 5.968H5.078z"></path></svg>
+                        もさくじ引用
+                    </a>
+                </div>
+                <!-- もう1回ボタン -->
+                <button id="retry-btn" class="w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full font-bold text-sm shadow transition-colors">
+                    もう1回
+                </button>
+            </div>
+
+            <div class="text-xs font-bold text-gray-400 mb-2">▼ おすすめポスト ▼</div>
             
             <!-- ツイートが埋め込まれるコンテナ -->
             <div id="tweet-container" class="tweet-scroll-area w-full bg-gray-50 rounded-xl border border-gray-100 min-h-[200px] flex items-center justify-center">
                 <!-- ここにXのポストが表示されます -->
-            </div>
-            
-            <div class="flex flex-col gap-3 mt-4 w-full px-2">
-                <!-- 引用ポスト用ボタン -->
-                <a id="quote-btn" href="#" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 bg-black hover:bg-gray-800 text-white rounded-full font-bold text-sm shadow transition-colors flex justify-center items-center gap-2">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 5.968H5.078z"></path></svg>
-                    引用ポストする
-                </a>
-                <button id="retry-btn" class="w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full font-bold text-sm shadow transition-colors">
-                    もう1回まわす
-                </button>
             </div>
         </div>
     </div>
@@ -111,11 +123,41 @@
     <script>
         const drawBtn = document.getElementById('draw-btn');
         const retryBtn = document.getElementById('retry-btn');
-        const quoteBtn = document.getElementById('quote-btn');
+        const quoteRecommendBtn = document.getElementById('quote-recommend-btn');
+        const quoteAppBtn = document.getElementById('quote-app-btn');
         const resultArea = document.getElementById('result-area');
+        const fortuneResult = document.getElementById('fortune-result');
+        const fortuneDesc = document.getElementById('fortune-desc');
         const tweetContainer = document.getElementById('tweet-container');
         const loading = document.getElementById('loading');
         const headerArea = document.getElementById('header-area');
+
+        // 運勢の定義
+        const fortunes = [
+            { text: "テラ吉", color: "text-red-600", desc: "システム絶好調！ フル充電のパワーで、どんな願いも爆速で叶うかも！" },
+            { text: "アプデ吉", color: "text-pink-500", desc: "運気の大規模アップデート完了！ 今日は新しい才能やアイデアがインストールされる予感！" },
+            { text: "フルスロットル吉", color: "text-orange-600", desc: "モーター回転数MAX！ 迷ったらGOサイン。今日の君は誰にも止められないぞ！" },
+            { text: "メカ吉", color: "text-blue-500", desc: "心の歯車がガッチリ噛み合う日。周りの人との見事な連携プレーで、トラブルも回避できそう！" },
+            { text: "ロボ吉", color: "text-indigo-500", desc: "鋼のメンタルで困難を乗り切れるかも。少しの衝撃ではへこたれないタフな一日！" },
+            { text: "Wi-Fi吉", color: "text-teal-500", desc: "アンテナ感度良好！ ずっと探していた情報や、素敵なご縁とサクサク繋がるかも！" },
+            { text: "エコ吉", color: "text-green-600", desc: "今日は省エネモードがおすすめ。無理せずバッテリーを温存すれば、夕方から良いことがあるかも。" },
+            { text: "バックアップ吉", color: "text-emerald-500", desc: "うっかりデータ消失（忘れ物）に注意！ こまめなメモと確認（保存）が君を救うぞ！" },
+            { text: "メンテ吉", color: "text-yellow-600", desc: "少し動きがカクカクしているかも？ 暖かい飲み物でオイル交換をして、自分を労わろう。" },
+            { text: "バグ凶", color: "text-purple-600", desc: "予期せぬエラー発生の予感！？ でも焦らないで。深呼吸して『再起動』すれば問題なし！" },
+            { text: "フリーズ大凶", color: "text-gray-800", desc: "思考回路がショート寸前！ 処理落ちで動けなくなる前に、今日はスリープモードで強制終了＆たっぷり休もう！" },
+            { text: "ポンコツ吉", color: "text-fuchsia-500", desc: "たまにはエラーを出したっていいじゃない！ その人間らしい隙が逆に愛されて、人気者になれるかも！？" },
+            { text: "もさ吉", color: "text-yellow-500", desc: "もさくとのシンクロ率100%！ もさくも驚くほどの奇跡が起きる、超ラッキーな一日！" },
+            { text: "急速充電吉", color: "text-red-500", desc: "エナジーチャージ完了！ 落ち込むことがあっても、驚異のスピードで回復してすぐに立ち直れる日！" },
+            { text: "マルチタスク吉", color: "text-cyan-600", desc: "内蔵CPUの処理能力が爆上がり！ 勉強も遊びも同時進行でサクサクこなせる、超絶デキる一日！" },
+            { text: "ディープラーニング吉", color: "text-blue-600", desc: "学習意欲が急上昇中。今日の君はスポンジのように知識を吸収し、最強の自分へと進化できるぞ！" },
+            { text: "ロック解除吉", color: "text-amber-500", desc: "ずっと解けなかったパスワードがついに解除！ 隠された才能の扉が開いたり、悩みがスッキリ解決する予感。" },
+            { text: "センサー吉", color: "text-lime-600", desc: "頭の上の高精度センサーがピコン！と反応。今日は直感が冴え渡り、隠れたラッキーを見つけ出せるぞ！" },
+            { text: "セキュリティ吉", color: "text-slate-600", desc: "強固なファイアウォールが君をガード！ 嫌なことやトラブルは自動でブロックされる安心安全な日。" },
+            { text: "クラウド吉", color: "text-sky-500", desc: "心の保存容量が無制限に！ 小さなミスは気にせず、広い心で全てを受け入れられる器の大きな一日に。" },
+            { text: "初期化吉", color: "text-gray-500", desc: "モヤモヤする気持ちはここでフォーマット（初期化）！ まっさらな状態から、新しいスタートを切るのに最適な日。" },
+            { text: "オーバーヒート凶", color: "text-red-800", desc: "頑張りすぎて頭からプシューッと煙が出そう！？ 冷却ファンを全開にして、今日はとにかく頭を空っぽにして休むべし！" },
+            { text: "ミラクルバグ吉", color: "text-violet-500", desc: "予定外の行動が思わぬ幸運を呼ぶ『良いバグ』が発生！ いつもと違う道を通ってみると、素敵な発見があるかも？" }
+        ];
 
         // ===============================================================
         // 📝 ここにご自身のポスト（ツイート）のURLを複数追加してください
@@ -326,6 +368,12 @@
             tweetContainer.style.opacity = '0';
             tweetContainer.innerHTML = ''; // 前回の結果をクリア
 
+            // ランダムに運勢を選択
+            const randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+            fortuneResult.textContent = randomFortune.text;
+            fortuneResult.className = `text-4xl font-black mb-2 drop-shadow-sm ${randomFortune.color}`;
+            fortuneDesc.textContent = randomFortune.desc; // 説明文を表示
+
             // ランダムにURLを選択
             const randomUrl = postUrls[Math.floor(Math.random() * postUrls.length)];
             
@@ -333,9 +381,13 @@
             // 内部的に「twitter.com」に置換してからブロッククオートに渡します
             const twitterUrl = randomUrl.replace('https://x.com/', 'https://twitter.com/');
 
-            // 引用ポスト用のURLを生成してボタンにセット
-            const shareText = "過去のメディアガチャを引いたよ！💊\n";
-            quoteBtn.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(randomUrl)}&text=${encodeURIComponent(shareText)}`;
+            // おすすめ引用ポスト用のテキスト
+            const shareRecommendText = `もさくじ引いたよ！\n結果は${randomFortune.text}\nおすすめポストは ${randomUrl}\n#もさくじ`;
+            quoteRecommendBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareRecommendText)}`;
+
+            // もさくじ引用ポスト用のテキスト
+            const shareAppText = `もさくじ引いたよ！\n結果は${randomFortune.text}\n\nhttps://mosaku3.github.io/x-gacha/index.html\n#もさくじ`;
+            quoteAppBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareAppText)}`;
 
             // フォールバック用のHTML（ウィジェットがブロックされた時用）
             const fallbackHtml = `
