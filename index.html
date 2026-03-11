@@ -11,7 +11,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@mosaku3">
     <meta name="twitter:title" content="もさくじ">
-    <meta name="twitter:description" content="今日の運勢ともさくさんのおすすめの過去ポストがランダムで登場するおみくじです">
+    <meta name="twitter:description" content="今日の運勢ともさくさんのおすすめの過去ポストがランダムで登場するおみくじです。">
     <meta name="twitter:image" content="https://mosaku3.github.io/x-gacha/images/mosaku3.jpg">
     <meta name="twitter:url" content="https://mosaku3.github.io/x-gacha/index.html">
     <!-- ========================================================= -->
@@ -41,22 +41,6 @@
         .tweet-scroll-area::-webkit-scrollbar { display: none; }
         .tweet-scroll-area { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
-
-    <!-- Xの公式ウィジェットスクリプトの読み込み -->
-    <script>
-    window.twttr = (function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0],
-        t = window.twttr || {};
-        if (d.getElementById(id)) return t;
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "https://platform.twitter.com/widgets.js";
-        fjs.parentNode.insertBefore(js, fjs);
-        t._e = [];
-        t.ready = function(f) { t._e.push(f); };
-        return t;
-    }(document, "script", "twitter-wjs"));
-    </script>
 </head>
 <body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex flex-col items-center justify-center font-sans text-gray-800 touch-none">
 
@@ -113,9 +97,9 @@
 
             <div class="text-xs font-bold text-gray-400 mb-2">▼ おすすめポスト ▼</div>
             
-            <!-- ツイートが埋め込まれるコンテナ -->
-            <div id="tweet-container" class="tweet-scroll-area w-full bg-gray-50 rounded-xl border border-gray-100 min-h-[200px] flex items-center justify-center">
-                <!-- ここにXのポストが表示されます -->
+            <!-- URLが表示されるコンテナ（高さを縮小し、スクロールを削除） -->
+            <div id="tweet-container" class="w-full bg-gray-50 rounded-xl border border-gray-100 min-h-[80px] flex items-center justify-center p-3">
+                <!-- ここにURLが表示されます -->
             </div>
         </div>
     </div>
@@ -359,12 +343,11 @@
             drawBtn.classList.add('hidden');
             headerArea.classList.add('hidden');
             
-            // ★重要修正1: Xのウィジェットは「非表示(display:none)」の要素内では
-            // 正常に描画されない仕様があるため、先に親コンテナを表示させます。
-            resultArea.classList.remove('hidden');
+            // ローディング表示
+            resultArea.classList.add('hidden');
             loading.classList.remove('hidden');
 
-            // ツイートコンテナを一時的に透明化（レンダリングは実行させる）
+            // ツイートコンテナを一時的に透明化
             tweetContainer.style.opacity = '0';
             tweetContainer.innerHTML = ''; // 前回の結果をクリア
 
@@ -377,10 +360,6 @@
             // ランダムにURLを選択
             const randomUrl = postUrls[Math.floor(Math.random() * postUrls.length)];
             
-            // ★重要修正2: widgets.js は「x.com」だと変換を無視することがあるため
-            // 内部的に「twitter.com」に置換してからブロッククオートに渡します
-            const twitterUrl = randomUrl.replace('https://x.com/', 'https://twitter.com/');
-
             // おすすめ引用ポスト用のテキスト
             const shareRecommendText = `もさくじ引いたよ！\n結果は${randomFortune.text}\nおすすめポストは ${randomUrl}\n#もさくじ`;
             quoteRecommendBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareRecommendText)}`;
@@ -389,69 +368,27 @@
             const shareAppText = `もさくじ引いたよ！\n結果は${randomFortune.text}\n\nhttps://mosaku3.github.io/x-gacha/index.html\n#もさくじ`;
             quoteAppBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareAppText)}`;
 
-            // フォールバック用のHTML（ウィジェットがブロックされた時用）
-            const fallbackHtml = `
-                <div class="p-5 text-center w-full">
-                    <p class="text-gray-700 text-sm font-bold mb-4">プレビュー環境による制限、<br>または読み込みに時間がかかっています。</p>
-                    <a href="${randomUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 bg-black hover:bg-gray-800 text-white rounded-full text-sm font-bold transition-colors w-full shadow-md">
-                        𝕏 でポストを開く
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            // URLリンクのHTMLを生成
+            const urlHtml = `
+                <div class="w-full break-all">
+                    <a href="${randomUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700 underline font-medium text-sm transition-colors">
+                        ${randomUrl}
                     </a>
                 </div>
             `;
+            tweetContainer.innerHTML = urlHtml;
 
-            // ご提示いただいた blockquote 形式でHTMLを生成 (twitterUrl を使用)
-            tweetContainer.innerHTML = `<blockquote class="twitter-tweet" data-theme="light" data-align="center" data-conversation="none"><a href="${twitterUrl}"></a></blockquote>`;
-
-            // タイムアウト処理（6秒待機）
-            let isLoaded = false;
-            const timeoutId = setTimeout(() => {
-                if (!isLoaded) {
-                    loading.classList.add('hidden');
-                    tweetContainer.style.opacity = '1';
-                    tweetContainer.innerHTML = fallbackHtml;
-                }
-            }, 6000);
-
-            // Xウィジェットの再ロードを要求してブロッククオートをツイート表示に変換する
-            if (window.twttr && window.twttr.ready) {
-                window.twttr.ready(function (twttr) {
-                    twttr.widgets.load(tweetContainer).then(function () {
-                        isLoaded = true;
-                        clearTimeout(timeoutId);
-
-                        // 埋め込み完了後の処理
-                        loading.classList.add('hidden');
-                        tweetContainer.style.opacity = '1';
-                        
-                        // ツイートが削除されている等の理由で変換されなかった場合か、結果が空の場合
-                        // 確実に判定するため、iframe（Xの埋め込み実体）が生成されたかを確認する
-                        const isRendered = tweetContainer.querySelector('iframe');
-                        if (!isRendered) {
-                            tweetContainer.innerHTML = fallbackHtml;
-                        } else {
-                            // アニメーションを付与
-                            tweetContainer.classList.remove('bounce-animation');
-                            void tweetContainer.offsetWidth; // リフローを強制してアニメーションをリセット
-                            tweetContainer.classList.add('bounce-animation');
-                        }
-                    }).catch(function(err) {
-                        // エラーハンドリング
-                        isLoaded = true;
-                        clearTimeout(timeoutId);
-                        loading.classList.add('hidden');
-                        tweetContainer.style.opacity = '1';
-                        tweetContainer.innerHTML = fallbackHtml;
-                        console.error("X widget load error:", err);
-                    });
-                });
-            } else {
-                isLoaded = true;
-                clearTimeout(timeoutId);
+            // ガチャの演出として、少し待ってから結果を表示
+            setTimeout(() => {
                 loading.classList.add('hidden');
+                resultArea.classList.remove('hidden');
                 tweetContainer.style.opacity = '1';
-                tweetContainer.innerHTML = fallbackHtml;
-            }
+                
+                // アニメーションを付与
+                tweetContainer.classList.remove('bounce-animation');
+                void tweetContainer.offsetWidth; // リフローを強制してアニメーションをリセット
+                tweetContainer.classList.add('bounce-animation');
+            }, 800); // 0.8秒待機
         }
 
         // 初期状態に戻す処理
